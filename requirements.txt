@@ -2,6 +2,6 @@ streamlit
 deep-translator
 indic_transliteration
 epitran
-torch
 torchaudio
-TTS.api
+TTS
+torch
