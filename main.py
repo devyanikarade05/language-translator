@@ -48,6 +48,20 @@ def translate_text():
             elif target_lang in ["Punjabi"]:
                 st.session_state.romanized_text = transliterate(translated_text, sanscript.GURMUKHI,
                                                                 sanscript.ITRANS).lower()
+
+            elif target_lang == "Japanese":
+                      try:
+                         import pykakasi
+                          kakasi = pykakasi.kakasi()
+                          kakasi.setMode("H", "a")  # Hiragana to Roman
+                          kakasi.setMode("K", "a")  # Katakana to Roman
+                          kakasi.setMode("J", "a")  # Kanji to Roman
+                          kakasi.setMode("r", "Hepburn")  # Use Hepburn Romanization
+                          conv = kakasi.getConverter()
+                          st.session_state.romanized_text = conv.do(translated_text).lower()
+                      except:
+                           st.session_state.romanized_text = translated_text
+                          
             else:
                 try:
                     epi = epitran.Epitran(languages[target_lang])
