@@ -2,4 +2,4 @@ streamlit
 deep-translator
 indic_transliteration
 epitran
-gtts
+TTS torchaudio torch
