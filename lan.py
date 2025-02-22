@@ -13,7 +13,6 @@ languages = {
     "Assamese": "as",
     "Maithili": "mai",
     "Santali": "sat",
-    "Kashmiri": "ks",
     "Konkani": "kok",
     "Sindhi": "sd",
     "Dogri": "doi",
