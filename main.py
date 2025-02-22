@@ -64,7 +64,8 @@ def translate_text():
 with col1:
     st.subheader("🔡 Enter Text")
     text_input = st.text_area("Type here...", key="input_text", height=400)
-    if text_input:
+
+    if st.button("Translate"):
         translate_text()
 
 with col2:
