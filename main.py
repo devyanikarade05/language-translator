@@ -36,9 +36,6 @@ def translate_text():
             elif target_lang in ["Gujarati"]:
                 st.session_state.romanized_text = transliterate(translated_text, sanscript.GUJARATI,
                                                                 sanscript.ITRANS).lower()
-            elif target_lang in ["Urdu"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.URDU,
-                                                                sanscript.ITRANS).lower()
             elif target_lang in ["Malayalam"]:
                 st.session_state.romanized_text = transliterate(translated_text, sanscript.MALAYALAM,
                                                                 sanscript.ITRANS).lower()
