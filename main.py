@@ -72,6 +72,8 @@ def text_to_speech():
             audio_file = BytesIO()
             tts.write_to_fp(audio_file)
             audio_file.seek(0)
+            st.audio(audio_file, format="audio/mp3")
+
 
             audio_base64 = base64.b64encode(audio_file.read()).decode()
             st.markdown(
