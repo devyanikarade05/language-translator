@@ -4,6 +4,8 @@ from lan import languages
 from indic_transliteration import sanscript
 from indic_transliteration.sanscript import transliterate
 import epitran
+from gtts import gTTS
+import os
 
 st.set_page_config(page_title="Language Translator", layout="wide")
 
@@ -48,7 +50,6 @@ def translate_text():
             elif target_lang in ["Punjabi"]:
                 st.session_state.romanized_text = transliterate(translated_text, sanscript.GURMUKHI,
                                                                 sanscript.ITRANS).lower()
-                          
             else:
                 try:
                     epi = epitran.Epitran(languages[target_lang])
@@ -57,6 +58,20 @@ def translate_text():
                     st.session_state.romanized_text = translated_text
         except Exception as e:
             st.warning("❌ Translation failed. Please try again.")
+
+
+def text_to_speech():
+    translated_text = st.session_state.get("translated_text", "")
+    target_lang = st.session_state.target_lang
+
+    if translated_text:
+        try:
+            tts = gTTS(text=translated_text, lang=languages[target_lang], slow=False)
+            tts.save("speech.mp3")
+            st.audio("speech.mp3")
+            os.remove("speech.mp3")
+        except Exception as e:
+            st.warning("❌ Speech synthesis failed. Please try again.")
 
 
 with col1:
@@ -73,7 +88,11 @@ with col2:
     st.text_area("Translated Text", st.session_state.get("translated_text", ""), height=150)
     st.text_area("Romanized Text", st.session_state.get("romanized_text", ""), height=100)
 
+    if st.button("🔊 Speak"):
+        text_to_speech()
+
 st.markdown("<style>textarea {font-size: 18px;}</style>", unsafe_allow_html=True)
+
 
 
 
