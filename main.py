@@ -3,9 +3,8 @@ from deep_translator import GoogleTranslator
 from lan import languages
 from indic_transliteration import sanscript
 from indic_transliteration.sanscript import transliterate
-import epitran
-from gtts import gTTS
-import os
+import edge_tts  # Microsoft TTS (Better than pyttsx3)
+import asyncio
 
 st.set_page_config(page_title="Language Translator", layout="wide")
 
@@ -13,6 +12,19 @@ st.markdown("<h1 style='text-align: center;'>Language Translator</h1>", unsafe_a
 
 col1, col2 = st.columns([1, 1])
 
+async def speak_text(text, lang_code):
+    try:
+        voice = f"{lang_code}-Female"  # Uses a female voice for most languages
+        tts = edge_tts.Communicate(text, voice)
+        await tts.save("output.mp3")
+        
+        # Hide the audio player
+        with open("output.mp3", "rb") as f:
+            audio_bytes = f.read()
+        st.audio(audio_bytes, format="audio/mp3")
+
+    except Exception as e:
+        st.warning("❌ Text-to-Speech failed. Try again.")
 
 def translate_text():
     text_input = st.session_state.input_text
@@ -23,56 +35,33 @@ def translate_text():
             translated_text = GoogleTranslator(source="auto", target=languages[target_lang]).translate(text_input)
             st.session_state.translated_text = translated_text
 
+            # Transliteration for Indian languages
             if target_lang in ["Hindi", "Marathi", "Sanskrit"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.DEVANAGARI,
-                                                                sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.DEVANAGARI, sanscript.ITRANS).lower()
             elif target_lang in ["Bengali", "Assamese"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.BENGALI,
-                                                                sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.BENGALI, sanscript.ITRANS).lower()
             elif target_lang in ["Telugu"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.TELUGU,
-                                                                sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.TELUGU, sanscript.ITRANS).lower()
             elif target_lang in ["Tamil"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.TAMIL,
-                                                                sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.TAMIL, sanscript.ITRANS).lower()
             elif target_lang in ["Gujarati"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.GUJARATI,
-                                                                sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.GUJARATI, sanscript.ITRANS).lower()
             elif target_lang in ["Malayalam"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.MALAYALAM,
-                                                                sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.MALAYALAM, sanscript.ITRANS).lower()
             elif target_lang in ["Kannada"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.KANNADA,
-                                                                sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.KANNADA, sanscript.ITRANS).lower()
             elif target_lang in ["Odia (Oriya)"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.ORIYA,
-                                                                sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.ORIYA, sanscript.ITRANS).lower()
             elif target_lang in ["Punjabi"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.GURMUKHI,
-                                                                sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.GURMUKHI, sanscript.ITRANS).lower()
             else:
-                try:
-                    epi = epitran.Epitran(languages[target_lang])
-                    st.session_state.romanized_text = epi.transliterate(translated_text).lower()
-                except:
-                    st.session_state.romanized_text = translated_text
+                st.session_state.romanized_text = translated_text
+
+            # Speak using Edge TTS (Hidden Audio Player)
+            asyncio.run(speak_text(translated_text, languages[target_lang]))
+
         except Exception as e:
             st.warning("❌ Translation failed. Please try again.")
-
-
-def text_to_speech():
-    translated_text = st.session_state.get("translated_text", "")
-    target_lang = st.session_state.target_lang
-
-    if translated_text:
-        try:
-            tts = gTTS(text=translated_text, lang=languages[target_lang], slow=False)
-            tts.save("speech.mp3")
-            st.audio("speech.mp3")
-            os.remove("speech.mp3")
-        except Exception as e:
-            st.warning("❌ Speech synthesis failed. Please try again.")
-
 
 with col1:
     st.subheader("🔡 Enter Text")
@@ -86,12 +75,12 @@ with col2:
     st.selectbox("Translate to", list(languages.keys()), key="target_lang", on_change=translate_text)
 
     st.text_area("Translated Text", st.session_state.get("translated_text", ""), height=150)
+
+    # Romanized text
     st.text_area("Romanized Text", st.session_state.get("romanized_text", ""), height=100)
 
-    if st.button("🔊 Speak"):
-        text_to_speech()
-
 st.markdown("<style>textarea {font-size: 18px;}</style>", unsafe_allow_html=True)
+
 
 
 
