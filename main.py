@@ -49,7 +49,7 @@ def translate_text():
                                                                 sanscript.ITRANS).lower()
 
             else:
-                    st.session_state.romanized_text = translated_text
+                st.session_state.romanized_text = translated_text
         except Exception as e:
             st.warning("❌ Translation failed. Please try again.")
 
