@@ -4,8 +4,8 @@ from lan import languages
 from indic_transliteration import sanscript
 from indic_transliteration.sanscript import transliterate
 import epitran
-import pyttsx3  # Offline TTS
-import threading  # For non-blocking TTS
+from gtts import gTTS
+import os
 
 st.set_page_config(page_title="Language Translator", layout="wide")
 
@@ -19,11 +19,14 @@ if "translated_text" not in st.session_state:
 if "romanized_text" not in st.session_state:
     st.session_state.romanized_text = ""
 
-# Function to handle text-to-speech
-def speak_text(text):
-    engine = pyttsx3.init()
-    engine.say(text)
-    engine.runAndWait()
+# Function to handle text-to-speech using gTTS
+def speak_text(text, lang="en"):
+    try:
+        tts = gTTS(text=text, lang=lang)
+        tts.save("output.mp3")  # Save as MP3 file
+        st.audio("output.mp3", format="audio/mp3")  # Play in Streamlit
+    except Exception as e:
+        st.error(f"❌ Error in TTS: {e}")
 
 # Function to translate text
 def translate_text():
@@ -86,9 +89,10 @@ with col2:
     # 🔊 Speaker Button to Play Translated Text
     if st.session_state.get("translated_text", ""):
         if st.button("🔊 Play Translation"):
-            threading.Thread(target=speak_text, args=(st.session_state["translated_text"],)).start()
+            speak_text(st.session_state["translated_text"], lang=languages[st.session_state["target_lang"]])
 
 st.markdown("<style>textarea {font-size: 18px;}</style>", unsafe_allow_html=True)
+
 
 
 
