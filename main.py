@@ -22,31 +22,31 @@ def translate_text():
 
             if target_lang in ["Hindi", "Marathi", "Sanskrit"]:
                 st.session_state.romanized_text = transliterate(translated_text, sanscript.DEVANAGARI,
-                                                                sanscript.ITRANS).lower()
+                                                                sanscript.HK).lower()
             elif target_lang in ["Bengali", "Assamese"]:
                 st.session_state.romanized_text = transliterate(translated_text, sanscript.BENGALI,
-                                                                sanscript.ITRANS).lower()
+                                                                sanscript.HK).lower()
             elif target_lang in ["Telugu"]:
                 st.session_state.romanized_text = transliterate(translated_text, sanscript.TELUGU,
-                                                                sanscript.ITRANS).lower()
+                                                                sanscript.HK).lower()
             elif target_lang in ["Tamil"]:
                 st.session_state.romanized_text = transliterate(translated_text, sanscript.TAMIL,
-                                                                sanscript.ITRANS).lower()
+                                                                sanscript.HK).lower()
             elif target_lang in ["Gujarati"]:
                 st.session_state.romanized_text = transliterate(translated_text, sanscript.GUJARATI,
-                                                                sanscript.ITRANS).lower()
+                                                                sanscript.HK).lower()
             elif target_lang in ["Malayalam"]:
                 st.session_state.romanized_text = transliterate(translated_text, sanscript.MALAYALAM,
-                                                                sanscript.ITRANS).lower()
+                                                                sanscript.HK).lower()
             elif target_lang in ["Kannada"]:
                 st.session_state.romanized_text = transliterate(translated_text, sanscript.KANNADA,
-                                                                sanscript.ITRANS).lower()
+                                                                sanscript.HK).lower()
             elif target_lang in ["Odia (Oriya)"]:
                 st.session_state.romanized_text = transliterate(translated_text, sanscript.ORIYA,
-                                                                sanscript.ITRANS).lower()
+                                                                sanscript.HK).lower()
             elif target_lang in ["Punjabi"]:
                 st.session_state.romanized_text = transliterate(translated_text, sanscript.GURMUKHI,
-                                                                sanscript.ITRANS).lower()
+                                                                sanscript.HK).lower()
 
             else:
                 st.session_state.romanized_text = translated_text
