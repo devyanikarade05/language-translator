@@ -3,7 +3,6 @@ from deep_translator import GoogleTranslator
 from lan import languages
 from indic_transliteration import sanscript
 from indic_transliteration.sanscript import transliterate
-import epitran
 
 st.set_page_config(page_title="Language Translator", layout="wide")
 
