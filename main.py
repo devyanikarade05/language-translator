@@ -6,7 +6,6 @@ from indic_transliteration.sanscript import transliterate
 import epitran
 import pyttsx3  # Offline TTS
 import threading  # For non-blocking TTS
-
 st.set_page_config(page_title="Language Translator", layout="wide")
 
 st.markdown("<h1 style='text-align: center;'>Language Translator</h1>", unsafe_allow_html=True)
