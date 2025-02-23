@@ -4,16 +4,13 @@ from lan import languages
 from indic_transliteration import sanscript
 from indic_transliteration.sanscript import transliterate
 import epitran
-from TTS.api import TTS
-
-# Initialize Coqui TTS
-tts = TTS(model_name="tts_models/multilingual/multi-dataset/your_tts", progress_bar=False, gpu=False)
 
 st.set_page_config(page_title="Language Translator", layout="wide")
 
 st.markdown("<h1 style='text-align: center;'>Language Translator</h1>", unsafe_allow_html=True)
 
 col1, col2 = st.columns([1, 1])
+
 
 def translate_text():
     text_input = st.session_state.input_text
@@ -51,20 +48,16 @@ def translate_text():
             elif target_lang in ["Punjabi"]:
                 st.session_state.romanized_text = transliterate(translated_text, sanscript.GURMUKHI,
                                                                 sanscript.ITRANS).lower()
+
             else:
                 try:
                     epi = epitran.Epitran(languages[target_lang])
                     st.session_state.romanized_text = epi.transliterate(translated_text).lower()
                 except:
                     st.session_state.romanized_text = translated_text
-
-            # Generate audio using Coqui TTS
-            audio_file = "output.wav"
-            tts.tts_to_file(text=translated_text, file_path=audio_file)
-            st.session_state.audio_file = audio_file
-
         except Exception as e:
             st.warning("❌ Translation failed. Please try again.")
+
 
 with col1:
     st.subheader("🔡 Enter Text")
@@ -80,14 +73,7 @@ with col2:
     st.text_area("Translated Text", st.session_state.get("translated_text", ""), height=150)
     st.text_area("Romanized Text", st.session_state.get("romanized_text", ""), height=100)
 
-    # Add a button to play the audio
-    if st.session_state.get("audio_file"):
-        st.audio(st.session_state.audio_file, format='audio/wav')
-        if st.button("Play Audio"):
-            st.audio(st.session_state.audio_file, format='audio/wav', start_time=0)
-
 st.markdown("<style>textarea {font-size: 18px;}</style>", unsafe_allow_html=True)
-
 
 
 
