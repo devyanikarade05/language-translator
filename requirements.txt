@@ -1,4 +1,4 @@
 streamlit
 deep-translator
 indic_transliteration
-epitran
+
