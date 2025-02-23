@@ -3,4 +3,3 @@ deep-translator
 indic_transliteration
 epitran
 pyttsx3
-threading
