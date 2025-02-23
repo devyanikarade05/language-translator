@@ -4,6 +4,7 @@ from lan import languages
 from indic_transliteration import sanscript
 from indic_transliteration.sanscript import transliterate
 import epitran
+import pyttsx3  # Offline TTS
 st.set_page_config(page_title="Language Translator", layout="wide")
 
 st.markdown("<h1 style='text-align: center;'>Language Translator</h1>", unsafe_allow_html=True)
@@ -54,6 +55,13 @@ def translate_text():
                     st.session_state.romanized_text = epi.transliterate(translated_text).lower()
                 except:
                     st.session_state.romanized_text = translated_text
+
+
+            # Play translation using pyttsx3 (no MP3 needed)
+            engine = pyttsx3.init()
+            engine.say(translated_text)
+            engine.runAndWait()
+            
         except Exception as e:
             st.warning("❌ Translation failed. Please try again.")
 
