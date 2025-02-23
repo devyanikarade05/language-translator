@@ -21,7 +21,7 @@ def translate_text():
             st.session_state.translated_text = translated_text
 
             if target_lang in ["Hindi", "Marathi", "Sanskrit"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.BENGALI,
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.DEVANAGARI,
                                                                 sanscript.HK).lower()
 
             elif target_lang in ["Bengali", "Assamese"]:
