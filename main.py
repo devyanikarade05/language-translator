@@ -6,14 +6,12 @@ from indic_transliteration.sanscript import transliterate
 import epitran
 from gtts import gTTS
 import base64
-import os
 
 st.set_page_config(page_title="Language Translator", layout="wide")
 
 st.markdown("<h1 style='text-align: center;'>Language Translator</h1>", unsafe_allow_html=True)
 
 col1, col2 = st.columns([1, 1])
-
 
 def translate_text():
     text_input = st.session_state.input_text
@@ -25,33 +23,23 @@ def translate_text():
             st.session_state.translated_text = translated_text
 
             if target_lang in ["Hindi", "Marathi", "Sanskrit"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.DEVANAGARI,
-                                                                sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.DEVANAGARI, sanscript.ITRANS).lower()
             elif target_lang in ["Bengali", "Assamese"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.BENGALI,
-                                                                sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.BENGALI, sanscript.ITRANS).lower()
             elif target_lang in ["Telugu"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.TELUGU,
-                                                                sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.TELUGU, sanscript.ITRANS).lower()
             elif target_lang in ["Tamil"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.TAMIL,
-                                                                sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.TAMIL, sanscript.ITRANS).lower()
             elif target_lang in ["Gujarati"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.GUJARATI,
-                                                                sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.GUJARATI, sanscript.ITRANS).lower()
             elif target_lang in ["Malayalam"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.MALAYALAM,
-                                                                sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.MALAYALAM, sanscript.ITRANS).lower()
             elif target_lang in ["Kannada"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.KANNADA,
-                                                                sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.KANNADA, sanscript.ITRANS).lower()
             elif target_lang in ["Odia (Oriya)"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.ORIYA,
-                                                                sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.ORIYA, sanscript.ITRANS).lower()
             elif target_lang in ["Punjabi"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.GURMUKHI,
-                                                                sanscript.ITRANS).lower()
-
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.GURMUKHI, sanscript.ITRANS).lower()
             else:
                 try:
                     epi = epitran.Epitran(languages[target_lang])
@@ -61,22 +49,17 @@ def translate_text():
         except Exception as e:
             st.warning("❌ Translation failed. Please try again.")
 
-
-def speak_text():
-    if st.session_state.get("translated_text", ""):
+def generate_audio():
+    if "translated_text" in st.session_state and st.session_state.translated_text:
         try:
-            tts = gTTS(text=st.session_state["translated_text"], lang=languages[st.session_state["target_lang"]])
+            tts = gTTS(text=st.session_state.translated_text, lang=languages[st.session_state.target_lang])
             audio_file = "output.mp3"
             tts.save(audio_file)
 
             with open(audio_file, "rb") as f:
-                audio_bytes = f.read()
-                st.session_state.audio_base64 = base64.b64encode(audio_bytes).decode()
-
-            os.remove(audio_file)
+                st.session_state.audio_base64 = base64.b64encode(f.read()).decode()
         except Exception as e:
             st.error("❌ Error in text-to-speech. Please try again.")
-
 
 with col1:
     st.subheader("🔡 Enter Text")
@@ -94,17 +77,15 @@ with col2:
 
     if st.session_state.get("translated_text", ""):
         if st.button("🔊 Play Translation"):
-            speak_text()
+            generate_audio()
 
-    if st.session_state.get("audio_base64", ""):
-        st.markdown(
-            f"""
-            <audio autoplay>
+    if "audio_base64" in st.session_state:
+        audio_html = f"""
+            <audio controls autoplay>
                 <source src="data:audio/mp3;base64,{st.session_state.audio_base64}" type="audio/mp3">
             </audio>
-            """,
-            unsafe_allow_html=True
-        )
+        """
+        st.markdown(audio_html, unsafe_allow_html=True)
 
 st.markdown("<style>textarea {font-size: 18px;}</style>", unsafe_allow_html=True)
 
