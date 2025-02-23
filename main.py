@@ -6,11 +6,18 @@ from indic_transliteration.sanscript import transliterate
 import epitran
 import pyttsx3  # Offline TTS
 import threading  # For non-blocking TTS
+
 st.set_page_config(page_title="Language Translator", layout="wide")
 
 st.markdown("<h1 style='text-align: center;'>Language Translator</h1>", unsafe_allow_html=True)
 
 col1, col2 = st.columns([1, 1])
+
+# Initialize session state
+if "translated_text" not in st.session_state:
+    st.session_state.translated_text = ""
+if "romanized_text" not in st.session_state:
+    st.session_state.romanized_text = ""
 
 # Function to handle text-to-speech
 def speak_text(text):
@@ -20,10 +27,10 @@ def speak_text(text):
 
 # Function to translate text
 def translate_text():
-    text_input = st.session_state.input_text
-    target_lang = st.session_state.target_lang
+    text_input = st.session_state.get("input_text", "").strip()
+    target_lang = st.session_state.get("target_lang", "")
 
-    if text_input:
+    if text_input and target_lang:
         try:
             translated_text = GoogleTranslator(source="auto", target=languages[target_lang]).translate(text_input)
             st.session_state.translated_text = translated_text
@@ -55,12 +62,12 @@ def translate_text():
                     st.session_state.romanized_text = translated_text
 
         except Exception as e:
-            st.warning("❌ Translation failed. Please try again.")
+            st.warning(f"❌ Translation failed: {str(e)}")
 
 # Left Column - Input
 with col1:
     st.subheader("🔡 Enter Text")
-    text_input = st.text_area("Type here...", key="input_text", height=350)
+    st.text_area("Type here...", key="input_text", height=350)
 
     if st.button("Translate"):
         translate_text()
@@ -68,10 +75,13 @@ with col1:
 # Right Column - Output
 with col2:
     st.subheader("Translation")
-    st.selectbox("Translate to", list(languages.keys()), key="target_lang", on_change=translate_text)
+    st.selectbox("Translate to", list(languages.keys()), key="target_lang")
 
-    translated_output = st.text_area("Translated Text", st.session_state.get("translated_text", ""), height=150)
-    romanized_output = st.text_area("Romanized Text", st.session_state.get("romanized_text", ""), height=100)
+    if st.button("🔄 Run Translation"):
+        translate_text()
+
+    st.text_area("Translated Text", st.session_state.get("translated_text", ""), height=150)
+    st.text_area("Romanized Text", st.session_state.get("romanized_text", ""), height=100)
 
     # 🔊 Speaker Button to Play Translated Text
     if st.session_state.get("translated_text", ""):
