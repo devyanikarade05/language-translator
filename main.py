@@ -50,10 +50,6 @@ def translate_text():
                                                                 sanscript.ITRANS).lower()
 
             else:
-                try:
-                    epi = epitran.Epitran(languages[target_lang])
-                    st.session_state.romanized_text = epi.transliterate(translated_text).lower()
-                except:
                     st.session_state.romanized_text = translated_text
         except Exception as e:
             st.warning("❌ Translation failed. Please try again.")
