@@ -4,9 +4,10 @@ from lan import languages
 from indic_transliteration import sanscript
 from indic_transliteration.sanscript import transliterate
 import epitran
-import pyttsx3
-import base64
-import io
+from TTS.api import TTS
+
+# Initialize Coqui TTS
+tts = TTS(model_name="tts_models/multilingual/multi-dataset/your_tts", progress_bar=False, gpu=False)
 
 st.set_page_config(page_title="Language Translator", layout="wide")
 
@@ -24,58 +25,46 @@ def translate_text():
             st.session_state.translated_text = translated_text
 
             if target_lang in ["Hindi", "Marathi", "Sanskrit"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.DEVANAGARI, sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.DEVANAGARI,
+                                                                sanscript.ITRANS).lower()
             elif target_lang in ["Bengali", "Assamese"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.BENGALI, sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.BENGALI,
+                                                                sanscript.ITRANS).lower()
             elif target_lang in ["Telugu"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.TELUGU, sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.TELUGU,
+                                                                sanscript.ITRANS).lower()
             elif target_lang in ["Tamil"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.TAMIL, sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.TAMIL,
+                                                                sanscript.ITRANS).lower()
             elif target_lang in ["Gujarati"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.GUJARATI, sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.GUJARATI,
+                                                                sanscript.ITRANS).lower()
             elif target_lang in ["Malayalam"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.MALAYALAM, sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.MALAYALAM,
+                                                                sanscript.ITRANS).lower()
             elif target_lang in ["Kannada"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.KANNADA, sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.KANNADA,
+                                                                sanscript.ITRANS).lower()
             elif target_lang in ["Odia (Oriya)"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.ORIYA, sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.ORIYA,
+                                                                sanscript.ITRANS).lower()
             elif target_lang in ["Punjabi"]:
-                st.session_state.romanized_text = transliterate(translated_text, sanscript.GURMUKHI, sanscript.ITRANS).lower()
+                st.session_state.romanized_text = transliterate(translated_text, sanscript.GURMUKHI,
+                                                                sanscript.ITRANS).lower()
             else:
                 try:
                     epi = epitran.Epitran(languages[target_lang])
                     st.session_state.romanized_text = epi.transliterate(translated_text).lower()
                 except:
                     st.session_state.romanized_text = translated_text
+
+            # Generate audio using Coqui TTS
+            audio_file = "output.wav"
+            tts.tts_to_file(text=translated_text, file_path=audio_file)
+            st.session_state.audio_file = audio_file
+
         except Exception as e:
             st.warning("❌ Translation failed. Please try again.")
-            st.session_state.translated_text = ""
-            st.session_state.romanized_text = ""
-
-def generate_audio():
-    if "translated_text" in st.session_state and st.session_state.translated_text:
-        try:
-            # Initialize pyttsx3 engine
-            engine = pyttsx3.init()
-
-            # Set language (if supported by the TTS engine)
-            target_lang_code = languages[st.session_state.target_lang]
-            voices = engine.getProperty('voices')
-            for voice in voices:
-                if target_lang_code in voice.languages:
-                    engine.setProperty('voice', voice.id)
-                    break
-
-            # Save audio to a BytesIO object
-            audio_bytes = io.BytesIO()
-            engine.save_to_file(st.session_state.translated_text, "temp_audio.mp3")
-            engine.runAndWait()
-
-            # Read the saved audio file into BytesIO
-            with open("temp_audio.mp3", "rb") as f:
-                st.session_state.audio_bytes = f.read()
-        except Exception as e:
-            st.error(f"❌ Error in text-to-speech: {e}")
 
 with col1:
     st.subheader("🔡 Enter Text")
@@ -91,18 +80,11 @@ with col2:
     st.text_area("Translated Text", st.session_state.get("translated_text", ""), height=150)
     st.text_area("Romanized Text", st.session_state.get("romanized_text", ""), height=100)
 
-    if st.session_state.get("translated_text", ""):
-        if st.button("🔊 Play Translation"):
-            generate_audio()
-
-    if "audio_bytes" in st.session_state:
-        audio_base64 = base64.b64encode(st.session_state.audio_bytes).decode()
-        audio_html = f"""
-            <audio controls autoplay>
-                <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
-            </audio>
-        """
-        st.markdown(audio_html, unsafe_allow_html=True)
+    # Add a button to play the audio
+    if st.session_state.get("audio_file"):
+        st.audio(st.session_state.audio_file, format='audio/wav')
+        if st.button("Play Audio"):
+            st.audio(st.session_state.audio_file, format='audio/wav', start_time=0)
 
 st.markdown("<style>textarea {font-size: 18px;}</style>", unsafe_allow_html=True)
 
