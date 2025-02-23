@@ -5,6 +5,7 @@ from indic_transliteration import sanscript
 from indic_transliteration.sanscript import transliterate
 import epitran
 from gtts import gTTS
+import base64
 import os
 
 st.set_page_config(page_title="Language Translator", layout="wide")
@@ -61,13 +62,26 @@ def translate_text():
             st.warning("❌ Translation failed. Please try again.")
 
 
-# Function to play the translated text
 def speak_text():
     if st.session_state.get("translated_text", ""):
         try:
             tts = gTTS(text=st.session_state["translated_text"], lang=languages[st.session_state["target_lang"]])
-            tts.save("output.mp3")
-            st.audio("output.mp3", format="audio/mp3", autoplay=True)
+            audio_file = "output.mp3"
+            tts.save(audio_file)
+
+            with open(audio_file, "rb") as f:
+                audio_bytes = f.read()
+                audio_base64 = base64.b64encode(audio_bytes).decode()
+
+            st.markdown(
+                f"""
+                <audio autoplay>
+                    <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
+                </audio>
+                """,
+                unsafe_allow_html=True
+            )
+            os.remove(audio_file)
         except Exception as e:
             st.error("❌ Error in text-to-speech. Please try again.")
 
@@ -86,12 +100,12 @@ with col2:
     st.text_area("Translated Text", st.session_state.get("translated_text", ""), height=150)
     st.text_area("Romanized Text", st.session_state.get("romanized_text", ""), height=100)
 
-    # Button to play the translated text
     if st.session_state.get("translated_text", ""):
         if st.button("🔊 Play Translation"):
             speak_text()
 
 st.markdown("<style>textarea {font-size: 18px;}</style>", unsafe_allow_html=True)
+
 
 
 
