@@ -6,6 +6,7 @@ from indic_transliteration.sanscript import transliterate
 import epitran
 from gtts import gTTS
 import base64
+import io
 
 st.set_page_config(page_title="Language Translator", layout="wide")
 
@@ -48,16 +49,17 @@ def translate_text():
                     st.session_state.romanized_text = translated_text
         except Exception as e:
             st.warning("❌ Translation failed. Please try again.")
+            st.session_state.translated_text = ""
+            st.session_state.romanized_text = ""
 
 def generate_audio():
     if "translated_text" in st.session_state and st.session_state.translated_text:
         try:
             tts = gTTS(text=st.session_state.translated_text, lang=languages[st.session_state.target_lang])
-            audio_file = "output.mp3"
-            tts.save(audio_file)
-
-            with open(audio_file, "rb") as f:
-                st.session_state.audio_base64 = base64.b64encode(f.read()).decode()
+            audio_bytes = io.BytesIO()
+            tts.write_to_fp(audio_bytes)
+            audio_bytes.seek(0)
+            st.session_state.audio_bytes = audio_bytes.read()
         except Exception as e:
             st.error("❌ Error in text-to-speech. Please try again.")
 
@@ -79,10 +81,11 @@ with col2:
         if st.button("🔊 Play Translation"):
             generate_audio()
 
-    if "audio_base64" in st.session_state:
+    if "audio_bytes" in st.session_state:
+        audio_base64 = base64.b64encode(st.session_state.audio_bytes).decode()
         audio_html = f"""
             <audio controls autoplay>
-                <source src="data:audio/mp3;base64,{st.session_state.audio_base64}" type="audio/mp3">
+                <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
             </audio>
         """
         st.markdown(audio_html, unsafe_allow_html=True)
