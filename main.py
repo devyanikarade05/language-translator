@@ -72,6 +72,7 @@ def translate_voice(text, target_language):
         return response.json().get("audio_url")
     else:
         st.warning("❌ Voice translation failed.")
+        st.write(response.text)
         return None
 
 with col1:
