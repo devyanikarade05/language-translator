@@ -13,7 +13,7 @@ st.markdown("<h1 style='text-align: center;'>Language Translator</h1>", unsafe_a
 col1, col2 = st.columns([1, 1])
 
 MURF_API_KEY = "ap2_233a03ec-c267-4402-b848-a3e9cf91436f"  # Replace with your actual API key
-MURF_API_URL = "https://api.murf.ai/v1/translate"
+MURF_API_URL = "https://api.murf.ai/v1/speech/generate"
 
 def translate_text():
     text_input = st.session_state.input_text
