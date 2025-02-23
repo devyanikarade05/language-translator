@@ -71,16 +71,8 @@ def speak_text():
 
             with open(audio_file, "rb") as f:
                 audio_bytes = f.read()
-                audio_base64 = base64.b64encode(audio_bytes).decode()
+                st.session_state.audio_base64 = base64.b64encode(audio_bytes).decode()
 
-            st.markdown(
-                f"""
-                <audio autoplay>
-                    <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
-                </audio>
-                """,
-                unsafe_allow_html=True
-            )
             os.remove(audio_file)
         except Exception as e:
             st.error("❌ Error in text-to-speech. Please try again.")
@@ -103,6 +95,16 @@ with col2:
     if st.session_state.get("translated_text", ""):
         if st.button("🔊 Play Translation"):
             speak_text()
+
+    if st.session_state.get("audio_base64", ""):
+        st.markdown(
+            f"""
+            <audio autoplay>
+                <source src="data:audio/mp3;base64,{st.session_state.audio_base64}" type="audio/mp3">
+            </audio>
+            """,
+            unsafe_allow_html=True
+        )
 
 st.markdown("<style>textarea {font-size: 18px;}</style>", unsafe_allow_html=True)
 
