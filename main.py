@@ -4,7 +4,7 @@ from lan import languages
 from indic_transliteration import sanscript
 from indic_transliteration.sanscript import transliterate
 import epitran
-from gtts import gTTS
+import pyttsx3
 import base64
 import io
 
@@ -55,13 +55,27 @@ def translate_text():
 def generate_audio():
     if "translated_text" in st.session_state and st.session_state.translated_text:
         try:
-            tts = gTTS(text=st.session_state.translated_text, lang=languages[st.session_state.target_lang])
+            # Initialize pyttsx3 engine
+            engine = pyttsx3.init()
+
+            # Set language (if supported by the TTS engine)
+            target_lang_code = languages[st.session_state.target_lang]
+            voices = engine.getProperty('voices')
+            for voice in voices:
+                if target_lang_code in voice.languages:
+                    engine.setProperty('voice', voice.id)
+                    break
+
+            # Save audio to a BytesIO object
             audio_bytes = io.BytesIO()
-            tts.write_to_fp(audio_bytes)
-            audio_bytes.seek(0)
-            st.session_state.audio_bytes = audio_bytes.read()
+            engine.save_to_file(st.session_state.translated_text, "temp_audio.mp3")
+            engine.runAndWait()
+
+            # Read the saved audio file into BytesIO
+            with open("temp_audio.mp3", "rb") as f:
+                st.session_state.audio_bytes = f.read()
         except Exception as e:
-            st.error("❌ Error in text-to-speech. Please try again.")
+            st.error(f"❌ Error in text-to-speech: {e}")
 
 with col1:
     st.subheader("🔡 Enter Text")
